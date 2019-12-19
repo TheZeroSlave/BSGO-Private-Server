@@ -421,18 +421,40 @@ namespace BSGO_Server
             SendMessageToUser(index, buffer);
         }
 
+        struct Item
+        {
+            public uint guid;
+            public uint count;
+
+            public Item(uint g, uint c)
+            {
+                guid = g;
+                count = c;
+            }
+        }
+
         public void SendItems(int index)
         {
             BgoProtocolWriter buffer = NewMessage();
             buffer.Write((ushort)Reply.HoldItems);
 
-            //size
-            buffer.Write((ushort)1);
-            buffer.Write((ushort)1); //serverId
-            buffer.Write((byte)2); //itemType
-            buffer.Write(215278030u);
-            buffer.Write(1000000);
+            var items = new Item[5];
+            items[0] = new Item((uint)BSGO_Server.ResourceType.Cubits, 1000000);
+            items[1] = new Item((uint)BSGO_Server.ResourceType.Tylium, 1000000);
+            items[2] = new Item((uint)BSGO_Server.ResourceType.Titanium, 2000000);
+            items[3] = new Item((uint)BSGO_Server.ResourceType.TuningKit, 2000000);
+            items[4] = new Item((uint)BSGO_Server.ResourceType.Water, 2000000);
 
+            //size
+            buffer.Write((ushort)items.Length);
+
+            for (var i = 0; i < items.Length; i++)
+            {
+                buffer.Write((ushort)(i+1)); //serverId
+                buffer.Write((byte)2); //itemType
+                buffer.Write(items[i].guid);
+                buffer.Write(items[i].count);
+            }
             SendMessageToUser(index, buffer);
         }
 
